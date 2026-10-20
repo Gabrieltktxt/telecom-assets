@@ -42,3 +42,8 @@ coverage/
 *.bak
 temp/
 tmp/
+# Build do TypeScript
+*.js.map
+*.tsbuildinfo
+dist/
+prisma/seed.js

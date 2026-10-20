@@ -8,6 +8,67 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Usuario {
+  id          String       @id @default(uuid())
+  nome        String
+  email       String       @unique
+  senhaHash   String
+  role        Role         @default(CONSULTA)
+  ativo       Boolean      @default(true)
+  criadoEm    DateTime     @default(now())
+  locaisResp  Local[]
+  manutencoes Manutencao[]
+}
+
+model Local {
+  id            String   @id @default(uuid())
+  nome          String
+  endereco      String
+  responsavelId String?
+  criadoEm      DateTime @default(now())
+  ativos        Ativo[]
+  responsavel   Usuario? @relation(fields: [responsavelId], references: [id])
+}
+
+model Ativo {
+  id            String       @id @default(uuid())
+  tipo          TipoAtivo
+  fabricante    String
+  modelo        String
+  numeroSerie   String       @unique
+  patrimonio    String?      @unique
+  localId       String
+  status        StatusAtivo  @default(ATIVO)
+  dataAquisicao DateTime?
+  observacoes   String?
+  criadoEm      DateTime     @default(now())
+  atualizadoEm  DateTime     @updatedAt
+  local         Local        @relation(fields: [localId], references: [id])
+  manutencoes   Manutencao[]
+
+  @@index([localId])
+  @@index([status])
+  @@index([tipo])
+}
+
+model Manutencao {
+  id             String           @id @default(uuid())
+  ativoId        String
+  problema       String
+  servico        String?
+  pecas          String?
+  tecnicoId      String
+  dataAbertura   DateTime         @default(now())
+  dataFechamento DateTime?
+  status         StatusManutencao @default(ABERTA)
+  criadoEm       DateTime         @default(now())
+  ativo          Ativo            @relation(fields: [ativoId], references: [id])
+  tecnico        Usuario          @relation(fields: [tecnicoId], references: [id])
+
+  @@index([ativoId])
+  @@index([status])
+}
+
 enum Role {
   ADMIN
   TECNICO
@@ -37,65 +98,4 @@ enum StatusManutencao {
   AGUARDANDO_PECA
   CONCLUIDA
   CANCELADA
-}
-
-model Usuario {
-  id          String       @id @default(uuid())
-  nome        String
-  email       String       @unique
-  senhaHash   String
-  role        Role         @default(CONSULTA)
-  ativo       Boolean      @default(true)
-  criadoEm    DateTime     @default(now())
-  manutencoes Manutencao[]
-  locaisResp  Local[]
-}
-
-model Local {
-  id            String   @id @default(uuid())
-  nome          String
-  endereco      String
-  responsavelId String?
-  responsavel   Usuario? @relation(fields: [responsavelId], references: [id])
-  ativos        Ativo[]
-  criadoEm      DateTime @default(now())
-}
-
-model Ativo {
-  id            String       @id @default(uuid())
-  tipo          TipoAtivo
-  fabricante    String
-  modelo        String
-  numeroSerie   String       @unique
-  patrimonio    String?      @unique
-  localId       String
-  local         Local        @relation(fields: [localId], references: [id])
-  status        StatusAtivo  @default(ATIVO)
-  dataAquisicao DateTime?
-  observacoes   String?
-  manutencoes   Manutencao[]
-  criadoEm      DateTime     @default(now())
-  atualizadoEm  DateTime     @updatedAt
-
-  @@index([localId])
-  @@index([status])
-  @@index([tipo])
-}
-
-model Manutencao {
-  id             String           @id @default(uuid())
-  ativoId        String
-  ativo          Ativo            @relation(fields: [ativoId], references: [id])
-  problema       String
-  servico        String?
-  pecas          String?
-  tecnicoId      String
-  tecnico        Usuario          @relation(fields: [tecnicoId], references: [id])
-  dataAbertura   DateTime         @default(now())
-  dataFechamento DateTime?
-  status         StatusManutencao @default(ABERTA)
-  criadoEm       DateTime         @default(now())
-
-  @@index([ativoId])
-  @@index([status])
 }
