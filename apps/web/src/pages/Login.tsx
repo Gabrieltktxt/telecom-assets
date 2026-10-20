@@ -23,7 +23,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-slate-900">
       <form
         onSubmit={submit}
-        className="bg-white p-8 rounded-xl w-96 shadow-xl"
+        className="bg-white p-8 rounded-xl w-full max-w-sm mx-4 shadow-xl"
       >
         <h1 className="text-2xl font-bold mb-1">📡 Telecom Assets</h1>
         <p className="text-slate-500 text-sm mb-6">Faça login para continuar</p>

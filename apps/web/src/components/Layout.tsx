@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { usePermissions } from "../hooks/usePermissions";
@@ -12,32 +13,65 @@ export default function Layout() {
   const { isAdmin, isConsulta } = usePermissions();
   const nav = useNavigate();
 
+  // Estado para controlar o menu no celular
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div className="min-h-screen flex bg-slate-100">
-      <aside className="w-60 bg-slate-800 p-4 flex flex-col">
-        <h1 className="text-white text-lg font-bold mb-6">📡 Telecom Assets</h1>
+    <div className="min-h-screen flex flex-col md:flex-row bg-slate-100">
+      {/* 🔝 Barra superior (só aparece no celular) */}
+      <div className="md:hidden bg-slate-800 text-white flex items-center justify-between p-4">
+        <h1 className="text-lg font-bold">📡 Telecom Assets</h1>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="text-2xl focus:outline-none"
+        >
+          {isOpen ? "✕" : "☰"}
+        </button>
+      </div>
+
+      {/* 📂 Menu Lateral */}
+      <aside
+        className={`
+        ${isOpen ? "block" : "hidden"} 
+        md:flex md:flex-col w-full md:w-60 bg-slate-800 p-4
+      `}
+      >
+        <h1 className="hidden md:block text-white text-lg font-bold mb-6">
+          📡 Telecom Assets
+        </h1>
 
         <nav className="space-y-1 flex-1">
-          <NavLink to="/" end className={link}>
-            Dashboard
-          </NavLink>
-          <NavLink to="/ativos" className={link}>
-            Ativos
-          </NavLink>
-          <NavLink to="/manutencoes" className={link}>
-            Manutenções
-          </NavLink>
-          <NavLink to="/locais" className={link}>
-            Locais
-          </NavLink>
-          {isAdmin && (
-            <NavLink to="/usuarios" className={link}>
-              Usuários
+          {/* Ao clicar em um link, fecha o menu no celular */}
+          <div onClick={() => setIsOpen(false)}>
+            <NavLink to="/" end className={link}>
+              Dashboard
             </NavLink>
+          </div>
+          <div onClick={() => setIsOpen(false)}>
+            <NavLink to="/ativos" className={link}>
+              Ativos
+            </NavLink>
+          </div>
+          <div onClick={() => setIsOpen(false)}>
+            <NavLink to="/manutencoes" className={link}>
+              Manutenções
+            </NavLink>
+          </div>
+          <div onClick={() => setIsOpen(false)}>
+            <NavLink to="/locais" className={link}>
+              Locais
+            </NavLink>
+          </div>
+          {isAdmin && (
+            <div onClick={() => setIsOpen(false)}>
+              <NavLink to="/usuarios" className={link}>
+                Usuários
+              </NavLink>
+            </div>
           )}
         </nav>
 
-        <div className="text-slate-400 text-xs pt-4 border-t border-slate-700">
+        <div className="text-slate-400 text-xs pt-4 border-t border-slate-700 mt-4 md:mt-0">
           <div className="mb-2">
             {user?.nome}
             <span
@@ -64,7 +98,8 @@ export default function Layout() {
         </div>
       </aside>
 
-      <main className="flex-1 p-6 overflow-auto">
+      {/* 📄 Conteúdo Principal */}
+      <main className="flex-1 p-4 md:p-6 overflow-auto">
         <Outlet />
       </main>
     </div>
